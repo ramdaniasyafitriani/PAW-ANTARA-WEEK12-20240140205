@@ -4,7 +4,7 @@ const { body, query, validationResult } = require('express-validator');
  * VALIDASI vs SANITASI - dua hal beda tapi sering jalan bareng:
  * - Validasi  : cek apakah input SESUAI ATURAN (kalo enggak, tolak)
  * - Sanitasi  : "bersihin"/ubah input jadi bentuk aman/normal (trim spasi,
- *               escape karakter berbahaya, dll), dijalanin walau input valid
+ *                escape karakter berbahaya, dll), dijalanin walau input valid
  *
  * Semua ATURAN INI JALAN DI SERVER, bukan cuma validasi di HTML/JS client.
  * Validasi client-side gampang banget di-bypass (lewat Postman, curl, atau
@@ -60,6 +60,20 @@ const sanitasiDemoRules = [
 ];
 
 /**
+ * 🛡️ DITANGANI DI SINI - Rules khusus untuk Fitur Bagian 2 (Form Ulasan Produk)
+ * Kombinasi validasi server-side dan sanitasi input sebelum masuk database.
+ */
+const reviewValidationRules = [
+  body('comment')
+    .trim()
+    .notEmpty().withMessage('Komentar wajib diisi')
+    .isLength({ min: 5, max: 200 }).withMessage('Komentar harus 5-200 karakter')
+    .escape(),
+  body('rating')
+    .isInt({ min: 1, max: 5 }).withMessage('Rating harus angka 1-5'),
+];
+
+/**
  * Middleware buat ngecek hasil validasi. Kalo ada error, dikumpulin
  * jadi array pesan yang gampang ditampilin ulang ke form.
  */
@@ -77,5 +91,6 @@ module.exports = {
   loginValidationRules,
   searchValidationRules,
   sanitasiDemoRules,
+  reviewValidationRules,
   handleValidationErrors,
 };
